@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Music Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">MP</div>
+        <div>
+          <p class="brand-title">My Audio</p>
+          <p class="brand-sub">Peribadi</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-link active" href="#">Home</a>
+        <a class="nav-link" href="#">Playlist</a>
+        <a class="nav-link" href="#">Upload</a>
+        <a class="nav-link" href="#">Tetapan</a>
+      </nav>
+      <div class="sidebar-block">
+        <p class="muted small">Playlist kamu</p>
+        <div class="pill">Focus Flow</div>
+        <div class="pill">Drive Mode</div>
+        <div class="pill">Easy Sunday</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="ghost icon back-btn" id="backBtn" aria-label="Back">&#8592;</button>
+          <button class="ghost icon menu-toggle" id="menuToggle" aria-label="Menu">&#9776;</button>
+        </div>
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l4.25 4.25 1.27-1.27L15.5 14Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/>
+          </svg>
+          <input id="searchInput" type="search" placeholder="Cari lagu atau artis">
+        </div>
+        <div class="top-actions">
+          <button class="ghost">Queue</button>
+          <button class="primary" id="uploadTrigger">Upload Lagu</button>
+          <div class="user-chip">DY</div>
+        </div>
+      </header>
+
+      <div class="quick-actions">
+        <button class="primary" id="quickUpload">Upload</button>
+        <button class="ghost" id="quickPlayAll">Play All</button>
+        <button class="ghost" id="quickShuffle">Shuffle</button>
+      </div>
+
+
+      <section class="status-bar">
+        <div class="metric">
+          <p class="muted small">Lagu</p>
+          <p class="metric-value" id="totalTracks">0</p>
+        </div>
+        <div class="metric">
+          <p class="muted small">Queue</p>
+          <p class="metric-value" id="totalQueue">0</p>
+        </div>
+        <div class="metric">
+          <p class="muted small">Playlist</p>
+          <p class="metric-value" id="totalPlaylists">1</p>
+        </div>
+        <div class="metric stretch">
+          <p class="muted small">Sedang main</p>
+          <p class="metric-value" id="nowPlayingLabel">-</p>
+        </div>
+        <div class="metric tag">
+          <span class="pill soft">Private Library</span>
+          <span class="pill muted-badge">Streaming lokal</span>
+        </div>
+      </section>
+
+      <section class="panel playlist-panel">
+        <div class="playlist-head">
+          <div>
+            <p class="muted small">Koleksi</p>
+            <h3>Playlist</h3>
+          </div>
+          <form id="newPlaylistForm" class="inline-form">
+            <input id="playlistNameInput" placeholder="Nama playlist" required>
+            <button class="primary" type="submit">Tambah</button>
+          </form>
+        </div>
+        <div class="playlist-list" id="playlistList"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Perpustakaan</h2>
+          <div class="section-actions">
+            <div class="filters">
+              <button class="ghost pill-btn active" data-filter="all">Semua</button>
+              <button class="ghost pill-btn" data-filter="recent">Terbaru</button>
+              <button class="ghost pill-btn" data-filter="upload">Upload</button>
+            </div>
+            <button class="ghost" id="sortButton">Susun A-Z</button>
+          </div>
+        </div>
+        <div class="card-grid" id="trackGrid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Queue</h2>
+          <p class="muted small">Ketuk untuk main</p>
+        </div>
+        <div class="queue" id="queueList"></div>
+      </section>
+
+      <section class="panel upload-panel">
+        <div>
+          <p class="muted small">Tambah Lagu</p>
+          <h3>Upload fail audio</h3>
+          <p class="muted">UI terus memapar lagu yang dimuat naik. Ganti logik upload dengan panggilan API anda bila backend siap.</p>
+        </div>
+        <form id="uploadForm" class="upload-form">
+          <label class="file-input">
+            <input id="fileInput" type="file" accept="audio/*" multiple>
+            <span>Pilih fail audio</span>
+          </label>
+          <div class="form-grid">
+            <input name="title" placeholder="Tajuk">
+            <input name="artist" placeholder="Artis">
+            <input name="album" placeholder="Album">
+          </div>
+          <button class="primary" type="submit">Upload</button>
+          <p class="muted small">Fail yang dipilih akan muncul di dashboard dan boleh dimainkan.</p>
+        </form>
+        <div class="drop-hint">Seret & lepas fail audio di sini atau tekan Upload.</div>
+      </section>
+    </main>
+  </div>
+
+  <button class="fab primary" id="fabUpload" aria-label="Upload pantas">+</button>
+
+  <footer class="player">
+    <div class="now">
+      <img class="now-cover" data-now-cover alt="Cover">
+      <div>
+        <p class="now-title" data-now-title-footer>-</p>
+        <p class="muted small" data-now-artist-footer>-</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="control-buttons">
+        <button class="ghost icon toggle-btn" id="shuffleBtn" aria-label="Shuffle">Shuffle</button>
+        <button class="ghost icon" id="prevBtn" aria-label="Sebelum">Prev</button>
+        <button class="primary icon play-toggle" id="playPauseBtn" aria-label="Play / Pause">Play</button>
+        <button class="ghost icon" id="nextBtn" aria-label="Seterusnya">Next</button>
+        <button class="ghost icon toggle-btn" id="repeatBtn" aria-label="Ulang">Repeat</button>
+      </div>
+      <div class="progress">
+        <span class="muted small" data-current-time>0:00</span>
+        <input id="progressRange" type="range" min="0" max="100" value="0">
+        <span class="muted small" data-duration>0:00</span>
+      </div>
+    </div>
+    <div class="player-right">
+      <div class="volume">
+        <span class="muted small">Vol</span>
+        <input id="volumeRange" type="range" min="0" max="1" step="0.01" value="0.8">
+      </div>
+    </div>
+  </footer>
+
+  <audio id="audio"></audio>
+
+  <script>
+    const API_BASE = "http://localhost:3000";
+
+    let tracks = [];
+    let playlists = [];
+    let nextId = 1;
+
+    const audio = document.getElementById("audio");
+    const trackGrid = document.getElementById("trackGrid");
+    const queueList = document.getElementById("queueList");
+    const searchInput = document.getElementById("searchInput");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const repeatBtn = document.getElementById("repeatBtn");
+    const progressRange = document.getElementById("progressRange");
+    const volumeRange = document.getElementById("volumeRange");
+    const currentTimeEl = document.querySelector("[data-current-time]");
+    const durationEl = document.querySelector("[data-duration]");
+    const nowTitleEl = document.querySelector("[data-now-title]");
+    const nowArtistEl = document.querySelector("[data-now-artist]");
+    const nowTitleFooter = document.querySelector("[data-now-title-footer]");
+    const nowArtistFooter = document.querySelector("[data-now-artist-footer]");
+    const nowCover = document.querySelector("[data-now-cover]");
+    const heroCover = document.querySelector(".hero-cover");
+    const heroTrackLabel = document.querySelector(".hero-track");
+    const heroArtistLabel = document.querySelector("[data-now-artist]");
+    const totalPlaylistsEl = document.getElementById("totalPlaylists");
+    const totalTracksEl = document.getElementById("totalTracks");
+    const totalQueueEl = document.getElementById("totalQueue");
+    const nowPlayingLabel = document.getElementById("nowPlayingLabel");
+    const filterButtons = document.querySelectorAll(".pill-btn");
+    const playlistList = document.getElementById("playlistList");
+    const newPlaylistForm = document.getElementById("newPlaylistForm");
+    const playlistNameInput = document.getElementById("playlistNameInput");
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const playAllBtn = document.getElementById("playAll");
+    const shuffleHero = document.getElementById("shuffleHero");
+    const sidebar = document.querySelector(".sidebar");
+    const menuToggle = document.getElementById("menuToggle");
+    const backBtn = document.getElementById("backBtn");
+    const navLinks = document.querySelectorAll(".nav-link");
+    const mqMobile = window.matchMedia("(max-width: 1000px)");
+    const fabUpload = document.getElementById("fabUpload");
+
+    let currentIndex = 0;
+    let isShuffle = false;
+    let isRepeat = false;
+    let activeFilter = "all";
+    let searchQuery = "";
+    let activePlaylistId = null;
+
+    const transparentImg = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRA==";
+    const defaultCoverStyle = "linear-gradient(135deg, rgba(29,185,84,0.35), rgba(255,255,255,0.05))";
+
+    const findIndexById = (id) => tracks.findIndex(t => t.id === id);
+
+    const formatTime = (sec) => {
+      if (Number.isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    };
+
+    const updateMetrics = () => {
+      totalTracksEl.textContent = tracks.length;
+      totalQueueEl.textContent = tracks.length;
+      totalPlaylistsEl.textContent = playlists.length;
+      nowPlayingLabel.textContent = tracks[currentIndex]?.title || "-";
+    };
+
+    const renderPlaylists = () => {
+      if (!playlists.length) {
+        playlistList.innerHTML = '<div class="empty-state">Tiada playlist. Tambah satu.</div>';
+        return;
+      }
+
+      playlistList.innerHTML = playlists.map(pl => `
+        <div class="playlist-card ${activeFilter === "playlist" && activePlaylistId === pl.id ? "active" : ""}" data-playlist-id="${pl.id}">
+          <div>
+            <p class="playlist-name">${pl.name}</p>
+            <p class="muted small">${pl.trackIds.length} lagu</p>
+          </div>
+          <div class="playlist-actions">
+            <button class="ghost pill-btn small-btn" data-view="${pl.id}">Lihat</button>
+            <button class="ghost pill-btn small-btn danger" data-del="${pl.id}">Padam</button>
+          </div>
+        </div>
+      `).join("");
+
+      playlistList.querySelectorAll("[data-view]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          activePlaylistId = Number(btn.dataset.view);
+          activeFilter = "playlist";
+          filterButtons.forEach(b => b.classList.remove("active"));
+          renderPlaylists();
+          applyFilters();
+        });
+      });
+
+      playlistList.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const id = Number(btn.dataset.del);
+          deletePlaylist(id);
+        });
+      });
+    };
+
+    const renderLibrary = (list) => {
+      if (!list.length) {
+        trackGrid.innerHTML = '<div class="empty-state">Tiada lagu. Upload untuk mula.</div>';
+        return;
+      }
+
+      trackGrid.innerHTML = list.map((track) => `
+        <article class="track-card" data-id="${track.id}">
+          <div class="track-actions">
+            <button class="ghost mini danger delete-track" data-del="${track.id}">Padam</button>
+          </div>
+          <div class="track-cover" style="background-image:${track.cover ? `url('${track.cover}')` : defaultCoverStyle}"></div>
+          <p class="track-title">${track.title}</p>
+          <p class="muted small">${track.artist}</p>
+          <div class="tag-row">
+            <span class="pill">${track.album}</span>
+            <span class="pill soft">${track.mood || "Track"}</span>
+          </div>
+          <div class="playlist-add">
+            <select class="playlist-select" data-track="${track.id}">
+              ${playlists.map(pl => `<option value="${pl.id}">${pl.name}</option>`).join("")}
+            </select>
+            <button class="ghost mini add-btn" data-add="${track.id}">Tambah</button>
+            ${activeFilter === "playlist" && activePlaylistId ? `<button class="ghost mini danger remove-btn" data-remove="${track.id}">Buang</button>` : ""}
+          </div>
+        </article>
+      `).join("");
+
+      [...trackGrid.querySelectorAll(".track-card")].forEach(card => {
+        card.addEventListener("click", () => playTrackById(Number(card.dataset.id)));
+      });
+
+      trackGrid.querySelectorAll(".add-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const trackId = Number(btn.dataset.add);
+          const select = trackGrid.querySelector(`.playlist-select[data-track="${trackId}"]`);
+          if (!select) return;
+          const playlistId = Number(select.value);
+          addTrackToPlaylist(trackId, playlistId);
+        });
+      });
+
+      trackGrid.querySelectorAll(".delete-track").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const trackId = Number(btn.dataset.del);
+          deleteTrack(trackId);
+        });
+      });
+
+      trackGrid.querySelectorAll(".remove-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const trackId = Number(btn.dataset.remove);
+          if (!activePlaylistId) return;
+          removeTrackFromPlaylist(trackId, activePlaylistId);
+        });
+      });
+    };
+
+    const renderQueue = (list) => {
+      if (!list.length) {
+        queueList.innerHTML = '<div class="empty-state">Queue kosong. Tambah lagu melalui upload.</div>';
+        return;
+      }
+
+      queueList.innerHTML = list.map((track) => `
+        <div class="queue-item" data-id="${track.id}">
+          <div>
+            <p class="queue-title">${track.title}</p>
+            <p class="muted small">${track.artist}</p>
+          </div>
+          <span class="muted small">${track.duration}</span>
+        </div>
+      `).join("");
+
+      [...queueList.querySelectorAll(".queue-item")].forEach(item => {
+        item.addEventListener("click", () => playTrackById(Number(item.dataset.id)));
+      });
+    };
+
+    const setNowPlaying = (track) => {
+      const setText = (el, val) => { if (el) el.textContent = val; };
+
+      if (!track) {
+        setText(nowTitleEl, "-");
+        setText(nowArtistEl, "-");
+        setText(nowTitleFooter, "-");
+        setText(nowArtistFooter, "-");
+        if (nowCover) nowCover.src = transparentImg;
+        if (heroCover) heroCover.style.backgroundImage = defaultCoverStyle;
+        if (heroTrackLabel) heroTrackLabel.textContent = "Tiada lagu";
+        if (heroArtistLabel) heroArtistLabel.textContent = "-";
+        durationEl.textContent = "0:00";
+        currentTimeEl.textContent = "0:00";
+        nowPlayingLabel.textContent = "-";
+        return;
+      }
+
+      setText(nowTitleEl, track.title);
+      setText(nowArtistEl, track.artist || "-");
+      setText(nowTitleFooter, track.title);
+      setText(nowArtistFooter, track.artist || "-");
+      if (nowCover) nowCover.src = track.cover || transparentImg;
+      if (heroCover) heroCover.style.backgroundImage = track.cover ? `url('${track.cover}')` : defaultCoverStyle;
+      if (heroTrackLabel) heroTrackLabel.textContent = track.title;
+      if (heroArtistLabel) heroArtistLabel.textContent = track.artist || "-";
+      nowPlayingLabel.textContent = track.title;
+    };
+
+    const closeSidebarMobile = () => {
+      if (mqMobile.matches && sidebar) {
+        sidebar.classList.remove("open");
+      }
+    };
+
+    const playTrackById = (id) => {
+      const idx = findIndexById(id);
+      if (idx === -1) return;
+      currentIndex = idx;
+      const track = tracks[idx];
+      setNowPlaying(track);
+      audio.src = track.src;
+      audio.play();
+      closeSidebarMobile();
+    };
+
+    const applyFilters = () => {
+      let list = [...tracks];
+      if (activeFilter === "recent") {
+        list = list.slice().sort((a, b) => b.id - a.id);
+      }
+      if (activeFilter === "upload") {
+        list = list.filter(t => t.mood === "Upload");
+      }
+      if (activeFilter === "playlist" && activePlaylistId) {
+        const pl = playlists.find(p => p.id === activePlaylistId);
+        list = pl ? list.filter(t => pl.trackIds.includes(t.id)) : [];
+      }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        list = list.filter(t =>
+          t.title.toLowerCase().includes(q) ||
+          t.artist.toLowerCase().includes(q) ||
+          t.album.toLowerCase().includes(q)
+        );
+      }
+      renderLibrary(list);
+      renderQueue(list);
+      updateMetrics();
+    };
+
+    const togglePlay = () => {
+      if (!tracks.length) return;
+      if (!audio.src) {
+        playTrackById(tracks[currentIndex].id);
+        return;
+      }
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    };
+
+    const playNext = () => {
+      if (!tracks.length) return;
+      if (isShuffle) {
+        currentIndex = Math.floor(Math.random() * tracks.length);
+      } else {
+        currentIndex = (currentIndex + 1) % tracks.length;
+      }
+      playTrackById(tracks[currentIndex].id);
+    };
+
+    const playPrev = () => {
+      if (!tracks.length) return;
+      currentIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
+      playTrackById(tracks[currentIndex].id);
+    };
+
+    playPauseBtn.addEventListener("click", togglePlay);
+    nextBtn.addEventListener("click", playNext);
+    prevBtn.addEventListener("click", playPrev);
+
+    shuffleBtn.addEventListener("click", () => {
+      isShuffle = !isShuffle;
+      shuffleBtn.classList.toggle("active", isShuffle);
+    });
+
+    repeatBtn.addEventListener("click", () => {
+      isRepeat = !isRepeat;
+      audio.loop = isRepeat;
+      repeatBtn.classList.toggle("active", isRepeat);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      if (!audio.duration) return;
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progressRange.value = percent || 0;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      durationEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener("play", () => {
+      playPauseBtn.textContent = "Pause";
+    });
+
+    audio.addEventListener("pause", () => {
+      playPauseBtn.textContent = "Play";
+    });
+
+    audio.addEventListener("ended", () => {
+      if (isRepeat) {
+        audio.play();
+        return;
+      }
+      playNext();
+    });
+
+    progressRange.addEventListener("input", (e) => {
+      if (!audio.duration) return;
+      const pct = Number(e.target.value) / 100;
+      audio.currentTime = audio.duration * pct;
+    });
+
+    volumeRange.addEventListener("input", (e) => {
+      audio.volume = Number(e.target.value);
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      applyFilters();
+    });
+
+    document.getElementById("sortButton").addEventListener("click", () => {
+      if (!tracks.length) return;
+      tracks.sort((a, b) => a.title.localeCompare(b.title));
+      applyFilters();
+    });
+
+    const addTrackToPlaylist = async (trackId, playlistId) => {
+      const playlist = playlists.find(p => p.id === playlistId);
+      if (!playlist) {
+        alert("Playlist tidak ditemui.");
+        return;
+      }
+      const res = await fetch(`${API_BASE}/api/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId }),
+      });
+      if (!res.ok) {
+        alert("Gagal tambah ke playlist.");
+        return;
+      }
+      if (!playlist.trackIds.includes(trackId)) playlist.trackIds.push(trackId);
+      renderPlaylists();
+      if (activeFilter === "playlist" && activePlaylistId === playlistId) {
+        applyFilters();
+      } else {
+        updateMetrics();
+      }
+    };
+
+    const removeTrackFromPlaylist = async (trackId, playlistId) => {
+      const playlist = playlists.find(p => p.id === playlistId);
+      if (!playlist) return;
+      const res = await fetch(`${API_BASE}/api/playlists/${playlistId}/tracks/${trackId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        alert("Gagal buang lagu dari playlist.");
+        return;
+      }
+      playlist.trackIds = playlist.trackIds.filter(id => id !== trackId);
+      renderPlaylists();
+      if (activeFilter === "playlist" && activePlaylistId === playlistId) {
+        applyFilters();
+      } else {
+        updateMetrics();
+      }
+    };
+
+    const deletePlaylist = async (playlistId) => {
+      await fetch(`${API_BASE}/api/playlists/${playlistId}`, { method: "DELETE" });
+      playlists = playlists.filter(p => p.id !== playlistId);
+      if (activePlaylistId === playlistId) {
+        activePlaylistId = null;
+        activeFilter = "all";
+        filterButtons.forEach(b => b.classList.remove("active"));
+        const allBtn = document.querySelector('[data-filter="all"]');
+        if (allBtn) allBtn.classList.add("active");
+      }
+      renderPlaylists();
+      applyFilters();
+    };
+
+    const deleteTrack = async (trackId) => {
+      try {
+        await fetch(`${API_BASE}/api/tracks/${trackId}`, { method: "DELETE" });
+      } catch (err) {
+        console.error(err);
+        alert("Gagal padam lagu di server.");
+        return;
+      }
+      tracks = tracks.filter(t => t.id !== trackId);
+      playlists.forEach(pl => {
+        pl.trackIds = pl.trackIds.filter(id => id !== trackId);
+      });
+      if (!tracks.length) {
+        audio.pause();
+        audio.src = "";
+        setNowPlaying(null);
+      } else if (!tracks[currentIndex]) {
+        currentIndex = 0;
+        setNowPlaying(tracks[0]);
+        audio.src = tracks[0].src;
+      }
+      renderPlaylists();
+      applyFilters();
+    };
+
+    const addTrackFromUpload = (file, title, artist, album) => {
+      const id = nextId++;
+      const src = URL.createObjectURL(file);
+      const newTrack = {
+        id,
+        title: title || file.name,
+        artist: artist || "Unknown",
+        album: album || "Single",
+        cover: "",
+        src,
+        duration: "0:00",
+        mood: "Upload"
+      };
+      tracks.push(newTrack);
+
+      // Jika sedang melihat playlist tertentu, auto tambah ke playlist itu supaya terus kelihatan
+      if (activeFilter === "playlist" && activePlaylistId) {
+        addTrackToPlaylist(id, activePlaylistId);
+      }
+
+      applyFilters();
+
+      const tmpAudio = new Audio();
+      tmpAudio.src = src;
+      tmpAudio.addEventListener("loadedmetadata", () => {
+        newTrack.duration = formatTime(tmpAudio.duration);
+        applyFilters();
+      });
+
+      if (tracks.length === 1) {
+        currentIndex = 0;
+        setNowPlaying(newTrack);
+        audio.src = newTrack.src;
+      }
+    };
+
+    const handleSelectedFiles = (fileList, meta = {}) => {
+      const files = Array.from(fileList || []);
+      files.forEach(file => addTrackFromUpload(file, meta.title, meta.artist, meta.album));
+    };
+
+    const uploadToApi = async (file, title, artist, album) => {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("title", title || file.name);
+      fd.append("artist", artist || "");
+      fd.append("album", album || "");
+      const res = await fetch(`${API_BASE}/api/tracks`, {
+        method: "POST",
+        body: fd,
+      });
+      if (!res.ok) throw new Error("Upload gagal");
+      return res.json();
+    };
+
+    const loadTracks = async () => {
+      const res = await fetch(`${API_BASE}/api/tracks`);
+      if (!res.ok) throw new Error("Gagal ambil tracks");
+      const data = await res.json();
+      tracks = data.map(item => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist || "-",
+        album: item.album || "Single",
+        cover: item.cover_url || "",
+        src: `${API_BASE}/api/tracks/${item.id}/stream`,
+        duration: item.duration_seconds ? formatTime(item.duration_seconds) : "0:00",
+        mood: "Upload",
+      }));
+      applyFilters();
+    };
+
+    const loadPlaylists = async () => {
+      const res = await fetch(`${API_BASE}/api/playlists`);
+      if (!res.ok) throw new Error("Gagal ambil playlists");
+      const data = await res.json();
+      playlists = data.map(p => ({ ...p, trackIds: [] }));
+      renderPlaylists();
+    };
+
+    const loadPlaylistTracks = async () => {
+      if (!playlists.length) return;
+      const res = await fetch(`${API_BASE}/api/playlist-tracks`);
+      if (!res.ok) throw new Error("Gagal ambil playlist-tracks");
+      const data = await res.json();
+      const map = {};
+      data.forEach(row => {
+        if (!map[row.playlist_id]) map[row.playlist_id] = [];
+        map[row.playlist_id].push(row.track_id);
+      });
+      playlists.forEach(pl => {
+        pl.trackIds = map[pl.id] || [];
+      });
+    };
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) {
+        alert("Pilih fail audio dahulu.");
+        return;
+      }
+      const formData = new FormData(uploadForm);
+      const title = formData.get("title");
+      const artist = formData.get("artist");
+      const album = formData.get("album");
+
+      try {
+        for (const file of files) {
+          await uploadToApi(file, title, artist, album);
+        }
+        await loadTracks();
+      } catch (err) {
+        console.error(err);
+        alert("Upload ke API gagal, fallback simpan lokal.");
+        handleSelectedFiles(files, { title, artist, album });
+      }
+
+      uploadForm.reset();
+      fileInput.value = "";
+    });
+
+    fileInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      try {
+        for (const file of files) {
+          await uploadToApi(file, "", "", "");
+        }
+        await loadTracks();
+      } catch (err) {
+        console.error(err);
+        alert("Upload ke API gagal, fallback simpan lokal.");
+        handleSelectedFiles(files);
+      }
+      uploadForm.reset();
+      fileInput.value = "";
+    });
+
+    document.getElementById("uploadTrigger").addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    if (fabUpload) {
+      fabUpload.addEventListener("click", () => {
+        fileInput.click();
+      });
+    }
+
+    const quickUpload = document.getElementById("quickUpload");
+    const quickPlayAll = document.getElementById("quickPlayAll");
+    const quickShuffle = document.getElementById("quickShuffle");
+
+    if (quickUpload) {
+      quickUpload.addEventListener("click", () => fileInput.click());
+    }
+    if (quickPlayAll) {
+      quickPlayAll.addEventListener("click", () => {
+        if (tracks.length) playTrackById(tracks[0].id);
+      });
+    }
+    if (quickShuffle) {
+      quickShuffle.addEventListener("click", () => {
+        isShuffle = !isShuffle;
+        shuffleBtn.classList.toggle("active", isShuffle);
+        if (shuffleHero) shuffleHero.classList.toggle("active", isShuffle);
+      });
+    }
+
+    if (menuToggle) {
+      menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+      });
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => closeSidebarMobile());
+    });
+
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        if (history.length > 1) {
+          history.back();
+        } else {
+          closeSidebarMobile();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    }
+
+    if (playAllBtn) {
+      playAllBtn.addEventListener("click", () => {
+        if (tracks.length) playTrackById(tracks[0].id);
+      });
+    }
+    if (shuffleHero) {
+      shuffleHero.addEventListener("click", () => {
+        isShuffle = !isShuffle;
+        shuffleHero.classList.toggle("active", isShuffle);
+        shuffleBtn.classList.toggle("active", isShuffle);
+      });
+    }
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeFilter = btn.dataset.filter;
+        activePlaylistId = null;
+        renderPlaylists();
+        applyFilters();
+      });
+    });
+
+    newPlaylistForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = playlistNameInput.value.trim();
+      if (!name) return;
+      fetch(`${API_BASE}/api/playlists`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Gagal buat playlist");
+          return res.json();
+        })
+        .then(data => {
+          playlists.push({ id: data.id, name: data.name, trackIds: [] });
+          playlistNameInput.value = "";
+          renderPlaylists();
+          applyFilters();
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Gagal buat playlist");
+        });
+    });
+
+    const init = async () => {
+      try {
+        await loadPlaylists();
+        await loadPlaylistTracks();
+        await loadTracks();
+      } catch (err) {
+        console.error(err);
+      }
+      renderPlaylists();
+      applyFilters();
+      setNowPlaying(null);
+      audio.volume = Number(volumeRange.value);
+    };
+
+    init();
+  </script>
+</body>
+</html>
